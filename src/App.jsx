@@ -38,7 +38,12 @@ const App = () => {
 
   useEffect(() => {
     fetch('https://data.binance.com/api/v3/ticker/24hr')
-      .then(result => result.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
       .then(data => {
         const convertedData = data.map(item => ({
           ...item,
@@ -46,6 +51,10 @@ const App = () => {
           closeTime: timestampToDateString(item.closeTime)
         }));
         setRowData(convertedData);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+
       });
   }, []);
 
