@@ -17,8 +17,11 @@ Implements error handling to provide meaningful feedback in case of API errors.
 # Getting Started
 
 Clone the repository: git clone https://github.com/zdrale/AgGridTable/tree/master
+
 Install dependencies: npm install
+
 Run the development server: npm run dev
+
 Open the application in your browser at localhost
 
 # Dependecies
