@@ -24,6 +24,9 @@ Open the application in your browser at localhost
 # Dependecies
 
 React: 17v
+
 Vite: 4.4.0
+
 ag-Grid: 30.0.5
+
 axios 1.4.0
