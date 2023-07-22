@@ -1,12 +1,30 @@
 import { useState, useEffect, useMemo } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import './style.css';
+import axios from 'axios';
 
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 const App = () => {
   const [rowData, setRowData] = useState();
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    axios.get('https://data.binance.com/api/v3/ticker/24hr')
+      .then(response => {
+        const data = response.data;
+        const convertedData = data.map(item => ({
+          ...item,
+          openTime: convertTimestampToDateString(item.openTime),
+          closeTime: convertTimestampToDateString(item.closeTime)
+        }));
+        setRowData(convertedData);
+      })
+      .catch(error => {
+        setError(error);
+      });
+  }, []);
 
   const [columnDefs, setColumnDefs] = useState([
     { field: 'symbol', filter: true },
@@ -36,45 +54,30 @@ const App = () => {
     sortable: true
   }));
 
-  useEffect(() => {
-    fetch('https://data.binance.com/api/v3/ticker/24hr')
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
-      .then(data => {
-        const convertedData = data.map(item => ({
-          ...item,
-          openTime: timestampToDateString(item.openTime),
-          closeTime: timestampToDateString(item.closeTime)
-        }));
-        setRowData(convertedData);
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
 
-      });
-  }, []);
+
 
   // Funkcija koja konvertuje Unix timestamp u datum
-  const timestampToDateString = (timestamp) => {
+  const convertTimestampToDateString = (timestamp) => {
     const date = new Date(timestamp);
     return date.toUTCString();
   };
 
   return (
     <div className='app-container'>
-      <div className="ag-theme-alpine grid-container">
-        <AgGridReact
-          rowData={rowData}
-          columnDefs={columnDefs}
-          defaultColDef={defaultColDef}
-          pagination={true}
-          animateRows={true}
-        />
-      </div>
+      {error ? (
+        <div className='error-container'>Error fetching data: {error.message}</div>
+      ) : (
+        <div className="ag-theme-alpine grid-container">
+          <AgGridReact
+            rowData={rowData}
+            columnDefs={columnDefs}
+            defaultColDef={defaultColDef}
+            pagination={true}
+            animateRows={true}
+          />
+        </div>
+      )}
     </div>
   );
 };
